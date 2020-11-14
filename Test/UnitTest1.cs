@@ -15,15 +15,12 @@ namespace Test
                   .SetBasePath(Directory.GetCurrentDirectory())
                   .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true).Build();
 
-        var options = (int)App.Logger.LoggerOptions.AddSerilog + (int)App.Logger.LoggerOptions.AddDebug ;
+        var options = (int)App.Logger.LoggerOptions.AddFile + (int)App.Logger.LoggerOptions.AddDebug ;
 
-      
-
-        var sut = App.Logger.GetLogger(options,_configuration);
-
-        sut.Value.LogInformation("Test");
-
-
+        using (var sut = App.Logger.GetLogger(options,_configuration).Value)
+        {
+            sut.Information("Test");
+        }
         }
     }
 

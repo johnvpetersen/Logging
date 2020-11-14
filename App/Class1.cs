@@ -2,9 +2,8 @@
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.EventLog;
 using Serilog;
+
 
 namespace App
 {
@@ -14,33 +13,26 @@ namespace App
        public enum LoggerOptions {
            AddConsole = 1,
            AddDebug = 2,
-           AddSerilog = 4,
+           AddFile = 4,
            AddEventLog = 8
        } 
   
-        public static  KeyValuePair<string,Microsoft.Extensions.Logging.ILogger> GetLogger(int options, IConfiguration configuration) {
-            
-            var logFile = Guid.NewGuid().ToString();
-            
-            var logger =     LoggerFactory.Create(
-                builder => {
-                     if (((int)LoggerOptions.AddConsole & options) == (int)LoggerOptions.AddConsole)   
-                        builder.AddConsole();
-                     if (((int)LoggerOptions.AddDebug & options) == (int)LoggerOptions.AddDebug)   
-                        builder.AddDebug();
-                     if (((int)LoggerOptions.AddSerilog & options) == (int)LoggerOptions.AddSerilog)   
-                        builder.AddSerilog(new LoggerConfiguration().WriteTo.File($"_{logFile}.log").CreateLogger());
-                     if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) &&
-                           (((int)LoggerOptions.AddEventLog & options) == (int)LoggerOptions.AddEventLog)) {
-                        var eventLogSettings = new EventLogSettings();
-                        configuration.GetSection("EventLogSettings").Bind(eventLogSettings);
-                        builder.AddEventLog(eventLogSettings);
-                     }   
-                }
-            ).CreateLogger(logFile);
-            configuration.GetSection("Logging").Bind(logger);
-            logger.LogInformation("Logger {logFile} generated.",logFile);
-            return new KeyValuePair<string, Microsoft.Extensions.Logging.ILogger>(logFile,logger);
+        public static  KeyValuePair<string,Serilog.Core.Logger> GetLogger(int options, IConfiguration configuration, string id = null) {
+            id = string.IsNullOrEmpty(id) ? Guid.NewGuid().ToString() : id;
+            var builder = new LoggerConfiguration();
+               if (((int)LoggerOptions.AddConsole & options) == (int)LoggerOptions.AddConsole)   
+                  builder.WriteTo.Console();
+               if (((int)LoggerOptions.AddDebug & options) == (int)LoggerOptions.AddDebug)   
+                  builder.WriteTo.Debug();
+               if (((int)LoggerOptions.AddFile & options) == (int)LoggerOptions.AddFile)   
+                  builder.WriteTo.File($"_{id}.log");
+               if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) &&
+                  (((int)LoggerOptions.AddEventLog & options) == (int)LoggerOptions.AddEventLog)) {
+                  builder.WriteTo.EventLog(id, manageEventSource: true);
+          }
+            var logger = builder.CreateLogger();
+            logger.Information("Logger {logFile} generated.",id);
+            return new KeyValuePair<string, Serilog.Core.Logger>(id,logger);
         }
     }
 }
