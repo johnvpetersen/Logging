@@ -18,8 +18,7 @@ namespace App
            AddEventLog = 8
        } 
   
-
-
+  
         public static KeyValuePair<string,Serilog.Core.Logger> GetLogger(string appSettings, string id = null) {
             id = string.IsNullOrEmpty(id) ? Guid.NewGuid().ToString() : id;
             
@@ -31,6 +30,7 @@ namespace App
             var logger = new LoggerConfiguration()
                   .ReadFrom.Configuration(configuration)
                   .CreateLogger();
+
 
             return new KeyValuePair<string, Serilog.Core.Logger>(id,logger);
         }

@@ -21,9 +21,9 @@
         "cwd": "../Logging/Test"
       } ,
       {
-        "name": "Host", 
-        "description": "Host", 
+        "name": "WebApp", 
+        "description": "WebApp", 
         "icon": "code", 
-        "cwd": "../Logging/Hosts"
+        "cwd": "../Logging/Host/WebApp"
       }    ]
-  }
+  } 

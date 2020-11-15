@@ -22,4 +22,10 @@
     <ProjectReference Include="..\App\App.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Include="AppSettings.json">
+    <CopyToOutputDirectory>Always</CopyToOutputDirectory>  
+
+    </Content>
+  </ItemGroup>
 </Project>

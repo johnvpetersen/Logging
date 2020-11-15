@@ -2,6 +2,7 @@ using System.IO;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Serilog;
 
 namespace Test
 {
@@ -22,6 +23,29 @@ namespace Test
             sut.Information("Test");
         }
         }
+    
+            [TestMethod]
+        public void TestGetLoggerBasedOnConfig()
+        {
+
+
+
+var configuration = new ConfigurationBuilder()
+        .SetBasePath(Directory.GetCurrentDirectory())
+        .AddJsonFile("AppSettings.json")
+        .Build();
+
+using (var logger = new LoggerConfiguration()
+        .ReadFrom.Configuration(configuration)
+        .CreateLogger())
+{
+    logger.Information("Cool");    
+        }
+
+        }
+    }
+
+    
     }
 
 /**********************************/
@@ -34,4 +58,4 @@ namespace Test
 
 
 
-}
+
