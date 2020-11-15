@@ -17,7 +17,7 @@ namespace Test
 
         var options = (int)App.Logger.LoggerOptions.AddFile + (int)App.Logger.LoggerOptions.AddDebug ;
 
-        using (var sut = App.Logger.GetLogger(options,_configuration).Value)
+        using (var sut = App.Logger.GetLogger(options).Value)
         {
             sut.Information("Test");
         }

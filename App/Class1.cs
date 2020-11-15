@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Runtime.InteropServices;
 using Microsoft.Extensions.Configuration;
 using Serilog;
@@ -17,7 +18,23 @@ namespace App
            AddEventLog = 8
        } 
   
-        public static  KeyValuePair<string,Serilog.Core.Logger> GetLogger(int options, IConfiguration configuration, string id = null) {
+
+
+        public static KeyValuePair<string,Serilog.Core.Logger> GetLogger(string appSettings, string id = null) {
+            id = string.IsNullOrEmpty(id) ? Guid.NewGuid().ToString() : id;
+            
+            var configuration = new ConfigurationBuilder()
+                   .SetBasePath(Directory.GetCurrentDirectory())
+                   .AddJsonFile(appSettings)
+                .Build();
+
+            var logger = new LoggerConfiguration()
+                  .ReadFrom.Configuration(configuration)
+                  .CreateLogger();
+
+            return new KeyValuePair<string, Serilog.Core.Logger>(id,logger);
+        }
+        public static  KeyValuePair<string,Serilog.Core.Logger> GetLogger(int options, string id = null) {
             id = string.IsNullOrEmpty(id) ? Guid.NewGuid().ToString() : id;
             var builder = new LoggerConfiguration();
                if (((int)LoggerOptions.AddConsole & options) == (int)LoggerOptions.AddConsole)   
@@ -31,7 +48,7 @@ namespace App
                   builder.WriteTo.EventLog(id, manageEventSource: true);
           }
             var logger = builder.CreateLogger();
-            logger.Information("Logger {logFile} generated.",id);
+               logger.Information("Logger {logFile} generated.",id);
             return new KeyValuePair<string, Serilog.Core.Logger>(id,logger);
         }
     }
