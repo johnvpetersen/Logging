@@ -13,7 +13,6 @@ namespace WebApp.Controllers
     public class HomeController : Controller
     {
         private  Serilog.Core.Logger _logger;
-        private readonly string _logID;
 
         public HomeController()
         {
@@ -43,6 +42,7 @@ namespace WebApp.Controllers
            _logger = App.Logger.GetLogger(options,id).Value;        
 
             _logger?.Information("Will be deleting Log: {id}",id);
+            _logger?.Dispose();
 
 
             var logFile = $"_{id}.log";
