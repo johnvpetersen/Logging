@@ -1,13 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
-using WebApp.Models;
 
 namespace WebApp.Controllers
 {
@@ -15,37 +8,34 @@ namespace WebApp.Controllers
     {
         private  Serilog.Core.Logger _logger;
 
-        public HomeController()
-        {
-        }
-
-
         public static int ParseQueryLoggerOptions(IQueryCollection queryCollection) {
             var retVal = 0;
-            retVal = retVal + queryCollection["AddFile"].ToString() == "YES" ? (int)App.Logger.LoggerOptions.AddFile : 0;
-            retVal = retVal + queryCollection["AddConsole"].ToString() == "YES" ? (int)App.Logger.LoggerOptions.AddConsole : 0;
-            retVal = retVal + queryCollection["AddDebug"].ToString() == "YES" ? (int)App.Logger.LoggerOptions.AddDebug : 0;
-            retVal = retVal + queryCollection["AddEventLog"].ToString() == "YES" ? (int)App.Logger.LoggerOptions.AddEventLog : 0;
-            return retVal;
+            if (queryCollection["AddConsole"].ToString() == "YES")
+               retVal = retVal +   (int)App.Logger.LoggerOptions.AddConsole;
+            if (queryCollection["AddDebug"].ToString() == "YES")
+               retVal = retVal +   (int)App.Logger.LoggerOptions.AddDebug;
+            if (queryCollection["AddEventLog"].ToString() == "YES")
+               retVal = retVal +   (int)App.Logger.LoggerOptions.AddEventLog;
+            if (queryCollection["AddFile"].ToString() == "YES")
+               retVal = retVal +   (int)App.Logger.LoggerOptions.AddFile;
+               return retVal;
 
         }
 
-        public string Index()
+        public string InvokeLog()
         {
            var retVal = string.Empty;
            var options = HomeController.ParseQueryLoggerOptions(Request.Query);
            if (options == 0)
-              retVal =  "You must choose at least 1 logging option: Console, Debug, EventLog, or File."; 
+              return  "You must choose at least 1 logging option: Console, Debug, EventLog, or File."; 
             var source = Request.Query["Source"].ToString();
+               
             if (string.IsNullOrEmpty(source))
-              retVal += " You must choose at least 1 logging option: Console, Debug, EventLog, or File."; 
-
-            if (retVal.Length > 0)
-               return retVal.Trim();
+               source  = Guid.NewGuid().ToString();
 
             _logger = App.Logger.GetLogger(options,source).Value;        
 
-            _logger?.Information(source);
+            _logger?.Information("This log entry was generated in the InvokeLog Controller Method: {source}",source);
             _logger?.Dispose();
             
             return source;
@@ -53,24 +43,16 @@ namespace WebApp.Controllers
 
         public string GetLog()
         {
-            var id = Request.Query["Log"].ToString();
-            if (string.IsNullOrEmpty(id))
+            var source = Request.Query["Source"].ToString();
+            if (string.IsNullOrEmpty(source))
                return null;
 
-           var options = (int)App.Logger.LoggerOptions.AddFile + (int)App.Logger.LoggerOptions.AddDebug + (int)App.Logger.LoggerOptions.AddEventLog;
-           _logger = App.Logger.GetLogger(options,id).Value;        
-
-            _logger?.Information("Will be deleting Log: {id}",id);
-            _logger?.Dispose();
-
-
-            var logFile = $"_{id}.log";
+            var logFile = $"_{source}.log";
             var content  = System.IO.File.ReadAllText(logFile);
             var delLog = Request.Query["DeleteLog"].ToString();
             if (delLog == "YES")
                System.IO.File.Delete(logFile);
             return content;
         }
-
     }
 }
