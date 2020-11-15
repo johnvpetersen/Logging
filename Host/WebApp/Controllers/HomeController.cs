@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -18,18 +19,36 @@ namespace WebApp.Controllers
         {
         }
 
+
+        public static int ParseQueryLoggerOptions(IQueryCollection queryCollection) {
+            var retVal = 0;
+            retVal = retVal + queryCollection["AddFile"].ToString() == "YES" ? (int)App.Logger.LoggerOptions.AddFile : 0;
+            retVal = retVal + queryCollection["AddConsole"].ToString() == "YES" ? (int)App.Logger.LoggerOptions.AddConsole : 0;
+            retVal = retVal + queryCollection["AddDebug"].ToString() == "YES" ? (int)App.Logger.LoggerOptions.AddDebug : 0;
+            retVal = retVal + queryCollection["AddEventLog"].ToString() == "YES" ? (int)App.Logger.LoggerOptions.AddEventLog : 0;
+            return retVal;
+
+        }
+
         public string Index()
         {
-            var id = Request.Query["Log"].ToString();
-            if (!String.IsNullOrEmpty(id)) {
-                       var options = (int)App.Logger.LoggerOptions.AddFile + (int)App.Logger.LoggerOptions.AddDebug + (int)App.Logger.LoggerOptions.AddEventLog;
-                       _logger = App.Logger.GetLogger(options,id).Value;        
-            }
+           var retVal = string.Empty;
+           var options = HomeController.ParseQueryLoggerOptions(Request.Query);
+           if (options == 0)
+              retVal =  "You must choose at least 1 logging option: Console, Debug, EventLog, or File."; 
+            var source = Request.Query["Source"].ToString();
+            if (string.IsNullOrEmpty(source))
+              retVal += " You must choose at least 1 logging option: Console, Debug, EventLog, or File."; 
 
-            _logger?.Information(id);
+            if (retVal.Length > 0)
+               return retVal.Trim();
+
+            _logger = App.Logger.GetLogger(options,source).Value;        
+
+            _logger?.Information(source);
             _logger?.Dispose();
             
-            return id;
+            return source;
         }
 
         public string GetLog()

@@ -19,8 +19,8 @@ namespace App
        } 
   
   
-        public static KeyValuePair<string,Serilog.Core.Logger> GetLogger(string appSettings, string id = null) {
-            id = string.IsNullOrEmpty(id) ? Guid.NewGuid().ToString() : id;
+        public static KeyValuePair<string,Serilog.Core.Logger> GetLogger(string appSettings, string source = null) {
+            source = string.IsNullOrEmpty(source) ? Guid.NewGuid().ToString() : source;
             
             var configuration = new ConfigurationBuilder()
                    .SetBasePath(Directory.GetCurrentDirectory())
@@ -32,17 +32,17 @@ namespace App
                   .CreateLogger();
 
 
-            return new KeyValuePair<string, Serilog.Core.Logger>(id,logger);
+            return new KeyValuePair<string, Serilog.Core.Logger>(source,logger);
         }
-        public static  KeyValuePair<string,Serilog.Core.Logger> GetLogger(int options, string id = null) {
-            id = string.IsNullOrEmpty(id) ? Guid.NewGuid().ToString() : id;
+        public static  KeyValuePair<string,Serilog.Core.Logger> GetLogger(int options, string source = null) {
+            source = string.IsNullOrEmpty(source) ? Guid.NewGuid().ToString() : source;
             var builder = new LoggerConfiguration();
                if (((int)LoggerOptions.AddConsole & options) == (int)LoggerOptions.AddConsole)   
                   builder.WriteTo.Console();
                if (((int)LoggerOptions.AddDebug & options) == (int)LoggerOptions.AddDebug)   
                   builder.WriteTo.Debug();
                if (((int)LoggerOptions.AddFile & options) == (int)LoggerOptions.AddFile)   
-                  builder.WriteTo.File($"_{id}.log");
+                  builder.WriteTo.File($"_{source}.log");
                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) &&
                   (((int)LoggerOptions.AddEventLog & options) == (int)LoggerOptions.AddEventLog)) {
                   builder.WriteTo.EventLog(id, manageEventSource: true);
