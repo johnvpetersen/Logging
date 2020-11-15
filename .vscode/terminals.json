@@ -1,0 +1,29 @@
+{
+    "autorun": true,
+    "terminals": [
+      {
+        "name": "root", 
+        "description": "Project root directory", 
+        "icon": "code", 
+        "cwd": "../Logging"
+      },
+
+      {
+        "name": "App", 
+        "description": "App", 
+        "icon": "code", 
+        "cwd": "../Logging/App"
+      },
+      {
+        "name": "Test", 
+        "description": "Test", 
+        "icon": "code", 
+        "cwd": "../Logging/Test"
+      } ,
+      {
+        "name": "Host", 
+        "description": "Host", 
+        "icon": "code", 
+        "cwd": "../Logging/Hosts"
+      }    ]
+  }
