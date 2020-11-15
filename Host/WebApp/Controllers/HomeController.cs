@@ -6,7 +6,7 @@ namespace WebApp.Controllers
 {
     public class HomeController : Controller
     {
-        private  Serilog.Core.Logger _logger;
+        private  Serilog.Core.Logger _logger = null;
 
         public static int ParseQueryLoggerOptions(IQueryCollection queryCollection) {
             var retVal = 0;
@@ -21,7 +21,10 @@ namespace WebApp.Controllers
                return retVal;
 
         }
-
+/*
+Create/Invoke Log: https://localhost:5001/Home/InvokeLog?Source=b6beca04-04ef-4765-85ff-ee7c3f0c173b&AddFile=YES&AddEventLog=YES
+Retrieve Log: https://localhost:5001/Home/GetLog?Source=b6beca04-04ef-4765-85ff-ee7c3f0c173b&DeleteLog=YES
+*/
         public string InvokeLog()
         {
            var retVal = string.Empty;
@@ -33,10 +36,10 @@ namespace WebApp.Controllers
             if (string.IsNullOrEmpty(source))
                source  = Guid.NewGuid().ToString();
 
-            _logger = App.Logger.GetLogger(options,source).Value;        
-
-            _logger?.Information("This log entry was generated in the InvokeLog Controller Method: {source}",source);
-            _logger?.Dispose();
+            using (var logger = App.Logger.GetLogger(options,source).Value)
+            {
+               _logger?.Information("This log entry was generated in the InvokeLog Controller Method: {source}",source);
+            }
             
             return source;
         }
