@@ -45,11 +45,11 @@ namespace App
                   builder.WriteTo.File($"_{source}.log");
                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) &&
                   (((int)LoggerOptions.AddEventLog & options) == (int)LoggerOptions.AddEventLog)) {
-                  builder.WriteTo.EventLog(id, manageEventSource: true);
+                  builder.WriteTo.EventLog(source, manageEventSource: true);
           }
             var logger = builder.CreateLogger();
-               logger.Information("Logger {logFile} generated.",id);
-            return new KeyValuePair<string, Serilog.Core.Logger>(id,logger);
+               logger.Information("Logger {logFile} generated.",source);
+            return new KeyValuePair<string, Serilog.Core.Logger>(source,logger);
         }
     }
 }
